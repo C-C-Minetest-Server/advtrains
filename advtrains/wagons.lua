@@ -805,7 +805,8 @@ function wagon:get_off(seatno)
 				
 				--atdebug("platpos:", platpos, "offpos:", offpos)
 				if minetest.get_item_group(minetest.get_node(platpos).name, "platform")>0 then
-					minetest.after(GETOFF_TP_DELAY, function() clicker:set_pos(offpos) end)
+					clicker:set_pos(offpos)
+					-- minetest.after(GETOFF_TP_DELAY, function() clicker:set_pos(offpos) end)
 					--atdebug("tp",offpos)
 					return
 				end
@@ -825,7 +826,8 @@ function wagon:get_off(seatno)
 			offp=vector.add({x=isx and r*2 or 0, y=1, z=not isx and r*2 or 0}, objpos)
 			--atdebug("platpos:", p, "offpos:", offp)
 			if minetest.get_item_group(minetest.get_node(p).name, "platform")>0 then
-				minetest.after(GETOFF_TP_DELAY, function() clicker:set_pos(offp) end)
+				clicker:set_pos(offp)
+				-- minetest.after(GETOFF_TP_DELAY, function() clicker:set_pos(offp) end)
 				--atdebug("tp",offp)
 				return
 			end
