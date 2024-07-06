@@ -166,7 +166,8 @@ local static_env = {
 	end,
 	get_slowdown = function()
 		return advtrains.global_slowdown
-	end
+	end,
+	get_train = atlatc.get_train_object,
 }
 
 -- If interlocking is present, enable route setting functions

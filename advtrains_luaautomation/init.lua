@@ -28,6 +28,7 @@ local mp=minetest.get_modpath("advtrains_luaautomation")
 if not mp then
 	error("Mod name error: Mod folder is not named 'advtrains_luaautomation'!")
 end
+dofile(mp.."/oop_api.lua")
 dofile(mp.."/environment.lua")
 dofile(mp.."/interrupt.lua")
 dofile(mp.."/active_common.lua")

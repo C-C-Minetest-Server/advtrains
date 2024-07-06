@@ -201,6 +201,12 @@ function r.fire_event(pos, evtdata, appr_internal)
 			
 			return true
 		end,
+		get_train = function(f_id, f_atc_arrow)
+			if not f_id and train_id then
+				return atlatc.get_train_object(train_id, atc_arrow)
+			end
+			return atlatc.get_train_object(f_id, f_atc_arrow)
+		end,
 	}
 	-- interlocking specific
 	if advtrains.interlocking then
