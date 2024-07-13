@@ -48,6 +48,7 @@ TODO: Properly invalidate train references when a train vanishes, i.e. do not le
 * `:get_line()`, `:get_rc()`: Get the line and routing code respectively.
 * `:set_line(line)`, `:set_rc(rc)`: Set the line and routing code repectively.
   * For `set_line`, numerical `line` is allowed. Otherwise, a string is needed.
+* `:has_rc(query)`: Check whether the given RC is part of the train's RC.
 
 ## Speed (in m/s)
 
@@ -60,10 +61,14 @@ TODO: Properly invalidate train references when a train vanishes, i.e. do not le
 * `:set_text_outside(text)`, `:set_text_inside(text)`: Set the text displayed outside and inside of the train respectively.
   * If `text` is `nil`, the string is emptied.
 
-## Interlocking (only avaliable if `advtrains_interlocking` is loaded)
+## Interlocking and ARS
+
+*(only avaliable if `advtrains_interlocking` is loaded)*
 
 * `:set_ars_disable(value)`: If `true`, ARS will be disabled on the train
   * This can also be done via `:atc_send("A<value>")`, where `<value>` is 1 or 0 depending on what you want to do.
+* `:ars_check_rule_match(ars)`: Check the train against the given ARS ruleset
+  * `ars` can either be an ARS string or an ARS table.
 
 ## Developers guide
 
