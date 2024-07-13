@@ -190,6 +190,16 @@ function train_ref_class:set_rc(rc)
     return true
 end
 
+function train_ref_class:has_rc(query)
+    local rc_list = self:get_rc()
+    if not rc_list then return false end
+
+    for word in rc_list:gmatch("[^%s]+") do
+        if word == query then return true end
+    end
+    return false
+end
+
 -- Speed
 
 function train_ref_class:get_speed()
@@ -234,13 +244,27 @@ function train_ref_class:set_text_inside(text)
     return true
 end
 
--- Interlocking
+-- Interlocking and ARS
 
 if advtrains.interlocking then
     function train_ref_class:set_ars_disable(value)
         local train = advtrains.trains[self.atc_id]
         if not train then return false end
         advtrains.interlocking.ars_set_disable(train, value)
+    end
+
+    function train_ref_class:ars_check_rule_match(ars)
+        local type_ars = type(ars)
+        if type_ars == "string" then
+            ars = advtrains.interlocking.text_to_ars(ars)
+        elseif type_ars ~= "table" and type_ars ~= "nil" then
+            error("ars_check_rule_match expect valid ARS representation")
+        end
+
+        local train = advtrains.trains[self.atc_id]
+        if not train then return false end
+
+        return advtrains.interlocking.ars_check_rule_match(ars, train)
     end
 end
 
