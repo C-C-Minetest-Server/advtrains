@@ -225,7 +225,7 @@ if advtrains.interlocking then
 	end
 	static_env.set_aspect = function(signal, asp)
 		local pos = atlatc.pcnaming.resolve_pos(signal)
-		return advtrains.interlocking.signal_set_aspect(pos)
+		return advtrains.interlocking.signal_set_aspect(pos,asp)
 	end
 	
 	--section_occupancy()
@@ -234,7 +234,7 @@ if advtrains.interlocking then
 		ts_id = tostring(ts_id)
 		local response = advtrains.interlocking.db.get_ts(ts_id)
 		if not response then return false end
-		return table.copy(response.trains)
+		return (response.trains and table.copy(response.trains)) or {}
 	end
 end
 
