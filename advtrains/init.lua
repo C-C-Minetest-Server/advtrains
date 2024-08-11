@@ -202,12 +202,14 @@ advtrains.meseconrules =
 advtrains.fpath=minetest.get_worldpath().."/advtrains"
 
 advtrains.speed = dofile(advtrains.modpath.."/speed.lua")
+advtrains.texture = dofile(advtrains.modpath.."/texture.lua")
 
 dofile(advtrains.modpath.."/path.lua")
 dofile(advtrains.modpath.."/trainlogic.lua")
 dofile(advtrains.modpath.."/trainhud.lua")
 dofile(advtrains.modpath.."/trackplacer.lua")
 dofile(advtrains.modpath.."/copytool.lua")
+dofile(advtrains.modpath.."/wagonprop_tool.lua")
 dofile(advtrains.modpath.."/tracks.lua")
 dofile(advtrains.modpath.."/occupation.lua")
 dofile(advtrains.modpath.."/atc.lua")
@@ -734,6 +736,21 @@ minetest.register_chatcommand("at_whereis",
 				return false, "Train "..param.." does not exist or is invalid"
 			else
 				return true, "Train "..param.." is at "..minetest.pos_to_string(train.last_pos)
+			end
+		end,
+})
+minetest.register_chatcommand("at_tp",
+	{
+		params = "<train id>",
+		description = "Teleports you to the position of the train with the given id",
+		privs = {train_operator = true, teleport = true},
+		func = function(name,param)
+			local train = advtrains.trains[param]
+			if not train or not train.last_pos then
+				return false, "Train "..param.." does not exist or is invalid"
+			else
+				minetest.get_player_by_name(name):set_pos(train.last_pos)
+				return true, "Teleporting to train "..param
 			end
 		end,
 })
