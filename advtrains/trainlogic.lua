@@ -1,14 +1,19 @@
 --trainlogic.lua
 --controls train entities stuff about connecting/disconnecting/colliding trains and other things
 
+local minetest, advtrains = minetest, advtrains
+local attrans, atdump, atprint, atwarn, atdebug, assertt = attrans, atdump, atprint, atwarn, atdebug, assertt
+local atround, atfloor = atround, atfloor
+
 local setting_overrun_mode = minetest.settings:get("advtrains_overrun_mode")
 
-local benchmark=false
+-- Uncomment to enable benchmark
+--[[
 local bm={}
 local bmlt=0
 local bmsteps=0
 local bmstepint=200
-atprintbm=function(action, ta)
+local atprintbm=function(action, ta)
 	if not benchmark then return end
 	local t=(os.clock()-ta)*1000
 	if not bm[action] then
@@ -18,7 +23,7 @@ atprintbm=function(action, ta)
 	end
 	bmlt=bmlt+t
 end
-function endstep()
+local function endstep()
 	if not benchmark then return end
 	bmsteps=bmsteps-1
 	if bmsteps<=0 then
@@ -31,6 +36,10 @@ function endstep()
 		bmlt=0
 	end
 end
+]]
+local function atprintbm() end
+local function endstep() end
+_G.atprintbm, _G.endstep = atprintbm, endstep
 
 --acceleration for lever modes (trainhud.lua), per wagon
 local t_accel_all={
@@ -66,9 +75,13 @@ local LZB_ZERO_APPROACH_SPEED = 0.2
 
 tp_player_tmr = 0
 
+-- a table of all players indexed by pts. used by damage and door system.
+advtrains.playersbypts={}
+
 advtrains.mainloop_trainlogic=function(dtime, stepno)
-	--build a table of all players indexed by pts. used by damage and door system.
-	advtrains.playersbypts={}
+	for key in pairs(advtrains.playersbypts) do
+		advtrains.playersbypts[key] = nil
+	end
 	for _, player in pairs(minetest.get_connected_players()) do
 		if not advtrains.player_to_train_mapping[player:get_player_name()] then
 			--players in train are not subject to damage
@@ -135,11 +148,11 @@ function advtrains.tp_player_to_train(player)
 	end
 end
 minetest.register_on_joinplayer(function(player)
-		advtrains.hud[player:get_player_name()] = nil
-		advtrains.hhud[player:get_player_name()] = nil
 		--independent of this, cause all wagons of the train which are loaded to reattach their players
 		--needed because already loaded wagons won't call reattach_all()
 		local pname = player:get_player_name()
+		advtrains.hud[pname] = nil
+		advtrains.hhud[pname] = nil
 		local id=advtrains.player_to_train_mapping[pname]
 		if id then
 			for _,wagon in pairs(minetest.luaentities) do
