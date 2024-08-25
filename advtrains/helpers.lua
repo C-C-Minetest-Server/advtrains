@@ -1,5 +1,7 @@
 --advtrains by orwell96, see readme.txt
 
+local minetest, advtrains = minetest, advtrains
+
 local dir_trans_tbl={
 	[0]={x=0, z=1, y=0},
 	[1]={x=1, z=2, y=0},
