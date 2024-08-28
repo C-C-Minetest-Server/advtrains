@@ -14,6 +14,7 @@ local IGNORE_WORLD = advtrains.IGNORE_WORLD
 
 advtrains.wagons = {}
 advtrains.wagon_prototypes = {}
+advtrains.wagon_alias = {}
 advtrains.wagon_objects = {}
 
 local unload_wgn_range = advtrains.wagon_load_range + 32
@@ -1318,6 +1319,9 @@ function advtrains.get_wagon_prototype(data)
 		data.type = data.entity_name
 		data.entity_name = nil
 	end
+	if advtrains.wagon_alias[wt] then
+		wt = advtrains.wagon_alias[wt]
+	end
 	if not wt or not advtrains.wagon_prototypes[wt] then
 		atwarn("Unable to load wagon type",wt,", using placeholder")
 		wt="advtrains:wagon_placeholder"
@@ -1408,6 +1412,10 @@ function advtrains.register_wagon(sysname_p, prototype, desc, inv_img, nincreati
 				return itemstack
 		end,
 	})
+end
+
+function advtrains.register_wagon_alias(src, dst)
+	advtrains.wagon_alias[src] = dst
 end
 
 -- Placeholder wagon. Will be spawned whenever a mod is missing
