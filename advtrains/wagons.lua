@@ -1321,6 +1321,7 @@ function advtrains.get_wagon_prototype(data)
 	end
 	if advtrains.wagon_alias[wt] then
 		wt = advtrains.wagon_alias[wt]
+		data.type = wt
 	end
 	if not wt or not advtrains.wagon_prototypes[wt] then
 		atwarn("Unable to load wagon type",wt,", using placeholder")
