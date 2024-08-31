@@ -1064,10 +1064,6 @@ function advtrains.update_trainpart_properties(train_id, invert_flipstate)
 		
 		-- 1st: update wagon data (pos_in_train a.s.o)
 		if data then
-			local train_type = data.type or data.entity_name
-			if advtrains.wagon_alias[train_type] then
-				train_type = advtrains.wagon_alias[train_type]
-			end
 			local wagon = advtrains.wagon_prototypes[data.type or data.entity_name]
 			if not wagon then
 				local ent = advtrains.wagon_objects[w_id]
