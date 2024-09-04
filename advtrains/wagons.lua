@@ -1157,21 +1157,24 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			for _,wagon in pairs(minetest.luaentities) do
 				if wagon.is_wagon and wagon.initialized and wagon.id==uid then
 					local data = advtrains.wagons[wagon.id]
-					if fields.inv then
-						if wagon.has_inventory and wagon.get_inventory_formspec then
-							minetest.show_formspec(player:get_player_name(), "advtrains_inv_"..uid, wagon:get_inventory_formspec(player:get_player_name(), make_inv_name(uid)))
-						end
-					elseif fields.seat then
-						local val=minetest.explode_textlist_event(fields.seat)
-						if val and val.type~="INV" and not data.seatp[player:get_player_name()] then
-						--get on
-							wagon:get_on(player, val.index)
-							--will work with the new close_formspec functionality. close exactly this formspec.
-							minetest.show_formspec(player:get_player_name(), formname, "")
+					if data then
+						if fields.inv then
+							if wagon.has_inventory and wagon.get_inventory_formspec then
+								minetest.show_formspec(player:get_player_name(), "advtrains_inv_"..uid, wagon:get_inventory_formspec(player:get_player_name(), make_inv_name(uid)))
+							end
+						elseif fields.seat then
+							local val=minetest.explode_textlist_event(fields.seat)
+							if val and val.type~="INV" and not data.seatp[player:get_player_name()] then
+							--get on
+								wagon:get_on(player, val.index)
+								--will work with the new close_formspec functionality. close exactly this formspec.
+								minetest.show_formspec(player:get_player_name(), formname, "")
+							end
 						end
 					end
 				end
 			end
+			return
 		end
 		uid=string.match(formname, "^advtrains_seating_(.+)$")
 		if uid then
@@ -1186,33 +1189,37 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					end
 				end
 			end
+			return
 		end
 		uid=string.match(formname, "^advtrains_prop_(.+)$")
 		if uid then
 			local pname=player:get_player_name()
 			local data = advtrains.wagons[uid]
-			if pname~=data.owner and not minetest.check_player_privs(pname, {train_admin = true}) then
-				return true
+			if data then
+				if pname~=data.owner and not minetest.check_player_privs(pname, {train_admin = true}) then
+					return true
+				end
+				if fields.save or not fields.quit then
+					if fields.whitelist then
+						data.whitelist = fields.whitelist
+					end
+					if fields.roadnumber then
+						data.roadnumber = fields.roadnumber
+					end
+					if fields.fc then
+						wagon.set_fc(data, fields.fc)
+					end
+					if fields.fcp then
+						wagon.prev_fc(data)
+						wagon.show_wagon_properties({id=uid}, pname)
+					end
+					if fields.fcn then
+						advtrains.step_fc(data)
+						wagon.show_wagon_properties({id=uid}, pname)
+					end
+				end
 			end
-			if fields.save or not fields.quit then
-				if fields.whitelist then
-					data.whitelist = fields.whitelist
-				end
-				if fields.roadnumber then
-					data.roadnumber = fields.roadnumber
-				end
-				if fields.fc then
-					wagon.set_fc(data, fields.fc)
-				end
-				if fields.fcp then
-					wagon.prev_fc(data)
-					wagon.show_wagon_properties({id=uid}, pname)
-				end
-				if fields.fcn then
-					advtrains.step_fc(data)
-					wagon.show_wagon_properties({id=uid}, pname)
-				end
-			end
+			return
 		end
 		uid=string.match(formname, "^advtrains_bordcom_(.+)$")
 		if uid then
@@ -1221,12 +1228,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					wagon:handle_bordcom_fields(player:get_player_name(), formname, fields)
 				end
 			end
+			return
 		end
 		uid=string.match(formname, "^advtrains_inv_(.+)$")
 		if uid then
 			local pname=player:get_player_name()
 			local data = advtrains.wagons[uid]
-			if fields.prop and data.owner==pname then
+			if fields.prop and data and data.owner==pname then
 				for _,wagon in pairs(minetest.luaentities) do
 					if wagon.is_wagon and wagon.initialized and wagon.id==uid and data.owner==pname then
 						wagon:show_wagon_properties(pname)
@@ -1234,6 +1242,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					end
 				end
 			end
+			return
 		end
 end)
 function wagon:seating_from_key_helper(pname, fields, no)
