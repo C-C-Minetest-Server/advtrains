@@ -93,6 +93,9 @@ Removes any pending interrupts of this node.
 Make this active component send a digiline message on the specified channel.
 Not available in init code.
 
+ - `trainparts(train_id)`
+	returns a table with the ids of the cars the train is composed of, or false if `train_id` is invalid. `train_id` can be replaced with `atc_id` when used in LuaATC Rails.
+
  - `atc_send_to_train(<train_id>, <atc_command>)`
 	Sends the specified ATC command to the train specified by its train id. This happens regardless of where the train is in the world, and can be used to remote-control trains. Returns true on success. If the train ID does not exist, returns false and does nothing. See [atc_command.txt](../atc_command.txt) for the ATC command syntax.
 
@@ -274,9 +277,11 @@ Each wagon has a current FC, indicating its next destination.
 	Command: `get_fc()`  
 	Result: `{"", "foo!bar", "testing", "fc_1!fc_2!fc_3!?", "hello_world"}`
 	
- - `set_fc(fc_list)`
+ - `set_fc(fc_list, reset_index)`
 	Overwrites the FC list according to a table `fc_list`. A false or nil entry will leave the wagon unaffected, however all others will be overwritten.
-	Useful for mass-programming freight trains that use FC-shunting instead of walking to each wagon individually.  
+	Useful for mass-programming freight trains that use FC-shunting instead of walking to each wagon individually. If the new FC entry for a wagon is shorter than the old entry, the index will clip to the last FC in the new entry.  
+	If `reset_index` is true, all Current FC values will reset to the first entry in the list, instead of remaining at the current index.  
+
 	Example: train has FC lists: `"", "foo!bar", "testing", "fc_1!fc_2!fc_3!?", "hello_world"`  
 	Command: `set_fc({"", "foo!turtle", nil, "4tehlulz", false})`  
 	Result: `""` `"foo!turtle"` `"testing"` `"4tehlulz"` `"hello_world"`

@@ -99,7 +99,7 @@ function r.fire_event(pos, evtdata, appr_internal)
 			end
 			return fc_list
 		end,
-		set_fc = function(fc_list)
+		set_fc = function(fc_list,reset_index)
 			assertt(fc_list, "table")
 			if not train_id then return false end
 			-- safety type-check for entered values
@@ -113,11 +113,12 @@ function r.fire_event(pos, evtdata, appr_internal)
 				if fc_list[index] then -- has FC to enter to this wagon
 					local data = advtrains.wagons[wagon_id]
 					if data then -- wagon actually exists
-						for _,wagon in pairs(minetest.luaentities) do -- find wagon entity
-							if wagon.is_wagon and wagon.initialized and wagon.id==wagon_id then
-								wagon.set_fc(data,fc_list[index]) -- overwrite to new FC
-								break -- no point cycling through every other entity. we found our wagon
-							end
+						--effectively copyied from wagons.lua, allowing for the :split function and reset_index
+						data.fc = fc_list[index]:split("!")
+						if reset_index or not data.fcind then
+							data.fcind = 1
+						elseif data.fcind > #data.fc then
+							data.fcind = #data.fc
 						end
 					end
 				end
