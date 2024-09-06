@@ -1105,7 +1105,9 @@ function wagon:handle_bordcom_fields(pname, formname, fields)
 			advtrains.safe_decouple_wagon(tpid, pname)
 		elseif fields["wgprp"..i] and data.owner==pname then
 			local wagon = advtrains.get_wagon_by_id(tpid)
-			wagon:show_wagon_properties(pname)
+			if wagon then
+				wagon:show_wagon_properties(pname)
+			end
 		end
 	end
 	--check cpl_eid_front and _back of train
