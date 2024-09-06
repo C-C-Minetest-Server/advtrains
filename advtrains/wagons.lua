@@ -1239,7 +1239,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			end
 			return true
 		end
-		return true
 end)
 
 function wagon:seating_from_key_helper(pname, fields, no)
