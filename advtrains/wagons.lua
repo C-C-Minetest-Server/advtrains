@@ -1104,6 +1104,7 @@ function wagon:handle_bordcom_fields(pname, formname, fields)
 		if fields["dcpl_"..i] then
 			advtrains.safe_decouple_wagon(tpid, pname)
 		elseif fields["wgprp"..i] then
+			local wagon = advtrains.get_wagon_by_id(tpid)
 			for _,wagon in pairs(minetest.luaentities) do
 				if wagon.is_wagon and wagon.initialized and wagon.id==tpid and data.owner==pname then
 					wagon:show_wagon_properties(pname)
@@ -1154,44 +1155,48 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local uid=string.match(formname, "^advtrains_geton_(.+)$")
 		if uid then
-			for _,wagon in pairs(minetest.luaentities) do
-				if wagon.is_wagon and wagon.initialized and wagon.id==uid then
-					local data = advtrains.wagons[wagon.id]
-					if fields.inv then
-						if wagon.has_inventory and wagon.get_inventory_formspec then
-							minetest.show_formspec(player:get_player_name(), "advtrains_inv_"..uid, wagon:get_inventory_formspec(player:get_player_name(), make_inv_name(uid)))
-						end
-					elseif fields.seat then
-						local val=minetest.explode_textlist_event(fields.seat)
-						if val and val.type~="INV" and not data.seatp[player:get_player_name()] then
-						--get on
-							wagon:get_on(player, val.index)
-							--will work with the new close_formspec functionality. close exactly this formspec.
-							minetest.show_formspec(player:get_player_name(), formname, "")
-						end
+			local wagon = advtrains.get_wagon_by_id(uid)
+			if wagon and wagon.initialized then
+				local data = advtrains.wagons[wagon.id]
+				if fields.inv then
+					if wagon.has_inventory and wagon.get_inventory_formspec then
+						minetest.show_formspec(player:get_player_name(), "advtrains_inv_"..uid, wagon:get_inventory_formspec(player:get_player_name(), make_inv_name(uid)))
+					end
+				elseif fields.seat then
+					local val=minetest.explode_textlist_event(fields.seat)
+					if val and val.type~="INV" and not data.seatp[player:get_player_name()] then
+					--get on
+						wagon:get_on(player, val.index)
+						--will work with the new close_formspec functionality. close exactly this formspec.
+						minetest.show_formspec(player:get_player_name(), formname, "")
 					end
 				end
 			end
+			return true
 		end
+
 		uid=string.match(formname, "^advtrains_seating_(.+)$")
 		if uid then
-			for _,wagon in pairs(minetest.luaentities) do
-				if wagon.is_wagon and wagon.initialized and wagon.id==uid then
-					local pname=player:get_player_name()
-					local no=wagon:get_seatno(pname)
-					if no then
-						if wagon.seat_groups then
-							wagon:seating_from_key_helper(pname, fields, no)
-						end
+			local wagon = advtrains.get_wagon_by_id(uid)
+			if wagon and wagon.initialized then
+				local pname=player:get_player_name()
+				local no=wagon:get_seatno(pname)
+				if no then
+					if wagon.seat_groups then
+						wagon:seating_from_key_helper(pname, fields, no)
 					end
 				end
 			end
+			return true
 		end
+
 		uid=string.match(formname, "^advtrains_prop_(.+)$")
 		if uid then
 			local pname=player:get_player_name()
 			local data = advtrains.wagons[uid]
-			if pname~=data.owner and not minetest.check_player_privs(pname, {train_admin = true}) then
+			if not data then
+				return true
+			elseif pname~=data.owner and not minetest.check_player_privs(pname, {train_admin = true}) then
 				return true
 			end
 			if fields.save or not fields.quit then
@@ -1213,29 +1218,33 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					wagon.show_wagon_properties({id=uid}, pname)
 				end
 			end
+			return true
 		end
 		uid=string.match(formname, "^advtrains_bordcom_(.+)$")
 		if uid then
-			for _,wagon in pairs(minetest.luaentities) do
-				if wagon.is_wagon and wagon.initialized and wagon.id==uid then
-					wagon:handle_bordcom_fields(player:get_player_name(), formname, fields)
-				end
+			local wagon = advtrains.get_wagon_by_id(uid)
+			if wagon and wagon.initialized then
+				wagon:handle_bordcom_fields(player:get_player_name(), formname, fields)
 			end
+			return true
 		end
+
 		uid=string.match(formname, "^advtrains_inv_(.+)$")
 		if uid then
 			local pname=player:get_player_name()
 			local data = advtrains.wagons[uid]
 			if fields.prop and data.owner==pname then
-				for _,wagon in pairs(minetest.luaentities) do
-					if wagon.is_wagon and wagon.initialized and wagon.id==uid and data.owner==pname then
-						wagon:show_wagon_properties(pname)
-						--wagon:handle_bordcom_fields(player:get_player_name(), formname, fields)
-					end
+				local wagon = advtrains.get_wagon_by_id(uid)
+				if wagon and wagon.initialized then
+					wagon:show_wagon_properties(pname)
+					--wagon:handle_bordcom_fields(player:get_player_name(), formname, fields)
 				end
 			end
+			return true
 		end
+		return true
 end)
+
 function wagon:seating_from_key_helper(pname, fields, no)
 	local data = advtrains.wagons[self.id]
 	local sgr=self.seats[no].group
@@ -1506,4 +1515,28 @@ function advtrains.get_wagon_at_index(train_id, w_index)
 	end
 	-- nothing found, dist must be further back
 	return nil
+end
+
+function advtrains.wagon_entity_pairs()
+	local ent = minetest.luaentities
+	local ent_i, wagon = next(ent, nil)
+
+	return function()
+		while ent_i do
+			if wagon.is_wagon then
+				local o_ent_i, o_wagon = ent_i, wagon
+				ent_i, wagon = next(ent, ent_i)
+				return o_ent_i, o_wagon
+			end
+			ent_i, wagon = next(ent, ent_i)
+		end
+	end
+end
+
+function advtrains.get_wagon_by_id(wagon_id)
+	for _, wagon in advtrains.wagon_entity_pairs() do
+		if wagon.id == wagon_id then
+			return wagon
+		end
+	end
 end
