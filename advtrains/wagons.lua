@@ -16,15 +16,7 @@ advtrains.wagons = {}
 advtrains.wagon_alias = {}
 advtrains.wagon_prototypes = setmetatable({}, {
 	__index = function(t, k)
-		local rtn_val = rawget(t, k)
-		if rtn_val ~= nil then
-			return rtn_val
-		end
-		local alias = advtrains.wagon_alias[k]
-		if alias then
-			return rawget(t, alias)
-		end
-		return nil
+		return rawget(t, advtrains.wagon_alias[k])
 	end
 })
 advtrains.wagon_objects = {}
