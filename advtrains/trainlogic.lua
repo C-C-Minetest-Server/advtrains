@@ -142,12 +142,11 @@ minetest.register_on_joinplayer(function(player)
 		local pname = player:get_player_name()
 		local id=advtrains.player_to_train_mapping[pname]
 		if id then
-			for _,wagon in pairs(minetest.luaentities) do
-				if wagon.is_wagon and wagon.initialized and wagon.id then
-					local wdata = advtrains.wagons[wagon.id]
-					if wdata and wdata.train_id == id then
-						wagon:reattach_all()
-					end
+			local wagon = advtrains.get_wagon_by_id(id, true)
+			if wagon then
+				local wdata = advtrains.wagons[wagon.id]
+				if wdata and wdata.train_id == id then
+					wagon:reattach_all()
 				end
 			end
 		end
@@ -160,8 +159,8 @@ minetest.register_on_dieplayer(function(player)
 		if id then
 			local train=advtrains.trains[id]
 			if not train then advtrains.player_to_train_mapping[pname]=nil return end
-			for _,wagon in pairs(minetest.luaentities) do
-				if wagon.is_wagon and wagon.initialized and wagon.train_id==id then
+			for _, wagon in advtrains.wagon_entity_pairs(true) do
+				if wagon and wagon.train_id == id then
 					--when player dies, detach him from the train
 					--call get_off_plr on every wagon since we don't know which one he's on.
 					wagon:get_off_plr(pname)
