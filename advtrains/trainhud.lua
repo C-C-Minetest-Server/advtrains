@@ -103,20 +103,18 @@ function advtrains.set_trainhud(name, text, driver)
 	if not player then
 	   return
 	end
-	local drivertext = driver or ""
 	local driverhud = {
 		hud_elem_type = "image",
 		name = "ADVTRAINS_DRIVER",
 		position = {x=0.5, y=1},
 		offset = {x=0,y=-170},
-		text = drivertext,
+		text = driver or "",
 		alignment = {x=0,y=-1},
-		scale = {x=1,y=1},
-	}
+		scale = {x=1,y=1},}
 	if not hud then
-		hud = {}
+		hud = {["driver"]={}}
 		advtrains.hud[name] = hud
-		hud.id = player:hud_add {
+		hud.id = player:hud_add({
 			hud_elem_type = "text",
 			name = "ADVTRAINS",
 			number = 0xFFFFFF,
@@ -125,23 +123,18 @@ function advtrains.set_trainhud(name, text, driver)
 			text = text,
 			scale = {x=200, y=60},
 			alignment = {x=0, y=-1},
-		}
+		})
+		hud.oldText=text
 		hud.driver = player:hud_add(driverhud)
-		hud.oldText = text
-		hud.oldDriver = drivertext
 	else
 		if hud.oldText ~= text then
 			player:hud_change(hud.id, "text", text)
 			hud.oldText=text
 		end
 		if hud.driver then
-			if hud.oldDriver ~= drivertext then
-				player:hud_change(hud.driver, "text", drivertext)
-				hud.oldDriver = drivertext
-			end
+			player:hud_change(hud.driver, "text", driver or "")
 		elseif driver then
 			hud.driver = player:hud_add(driverhud)
-			hud.oldDriver = drivertext
 		end
 	end
 end
