@@ -10,6 +10,8 @@ advtrains.hud[player:get_player_name()] = nil
 advtrains.hhud[player:get_player_name()] = nil
 end)
 
+local hud_type_key = minetest.features.hud_def_type_field and "type" or "hud_elem_type"
+
 local mletter={[1]="F", [-1]="R", [0]="N"}
 
 function advtrains.on_control_change(pc, train, flip)
@@ -104,7 +106,7 @@ function advtrains.set_trainhud(name, text, driver)
 	   return
 	end
 	local driverhud = {
-		hud_elem_type = "image",
+		[hud_type_key] = "image",
 		name = "ADVTRAINS_DRIVER",
 		position = {x=0.5, y=1},
 		offset = {x=0,y=-170},
@@ -115,7 +117,7 @@ function advtrains.set_trainhud(name, text, driver)
 		hud = {["driver"]={}}
 		advtrains.hud[name] = hud
 		hud.id = player:hud_add({
-			hud_elem_type = "text",
+			[hud_type_key] = "text",
 			name = "ADVTRAINS",
 			number = 0xFFFFFF,
 			position = {x=0.5, y=1},
@@ -124,7 +126,6 @@ function advtrains.set_trainhud(name, text, driver)
 			scale = {x=200, y=60},
 			alignment = {x=0, y=-1},
 		})
-		hud.oldText=text
 		hud.driver = player:hud_add(driverhud)
 	else
 		if hud.oldText ~= text then
@@ -149,7 +150,7 @@ function advtrains.set_help_hud(name, text)
 		hud = {}
 		advtrains.hhud[name] = hud
 		hud.id = player:hud_add({
-			hud_elem_type = "text",
+			[hud_type_key] = "text",
 			name = "ADVTRAINS_HELP",
 			number = 0xFFFFFF,
 			position = {x=1, y=0.3},
