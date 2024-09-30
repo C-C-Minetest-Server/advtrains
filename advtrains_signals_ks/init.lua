@@ -167,6 +167,7 @@ for _, rtab in ipairs({
 				}
 			}
 		end
+		local crea = (rtab.ici and prts.ici) and 0 or 1
 		minetest.register_node("advtrains_signals_ks:hs_"..typ.."_"..rot, {
 			description = "Ks Main Signal",
 			drawtype = "mesh",
@@ -187,7 +188,7 @@ for _, rtab in ipairs({
 				advtrains_signal = 2,
 				not_blocking_trains = 1,
 				save_in_at_nodedb = 1,
-				not_in_creative_inventory = (rtab.ici and prts.ici) and 0 or 1,
+				not_in_creative_inventory = crea,
 			},
 			drop = "advtrains_signals_ks:hs_danger_0",
 			inventory_image = "advtrains_signals_ks_hs_inv.png",
@@ -202,6 +203,9 @@ for _, rtab in ipairs({
 		})
 		-- rotatable by trackworker
 		advtrains.trackplacer.add_worked("advtrains_signals_ks:hs", typ, "_"..rot)
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:hs_"..typ.."_"..rot] = "advtrains_signals_ks:hs_danger_0"
+		end
 	end
 	
 	
@@ -212,6 +216,7 @@ for _, rtab in ipairs({
 		}) do
 		local sbox = table.copy(rtab.sbox)
 		sbox[5] = 0
+		local crea = (rtab.ici and prts.ici) and 0 or 1
 		minetest.register_node("advtrains_signals_ks:ra_"..typ.."_"..rot, {
 			description = "Ks Shunting Signal",
 			drawtype = "mesh",
@@ -236,7 +241,7 @@ for _, rtab in ipairs({
 				advtrains_signal = 2,
 				not_blocking_trains = 1,
 				save_in_at_nodedb = 1,
-				not_in_creative_inventory = (rtab.ici and prts.ici) and 0 or 1,
+				not_in_creative_inventory = crea,
 			},
 			drop = "advtrains_signals_ks:ra_danger_0",
 			inventory_image = "advtrains_signals_ks_ra_inv.png",
@@ -253,10 +258,14 @@ for _, rtab in ipairs({
 		})
 		-- rotatable by trackworker
 		advtrains.trackplacer.add_worked("advtrains_signals_ks:ra", typ, "_"..rot)
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:ra_"..typ.."_"..rot] = "advtrains_signals_ks:ra_danger_0"
+		end
 	end
 
 	-- Schilder:
 	local function register_sign(prefix, typ, nxt, description, mesh, tile2, dtyp, inv, asp)
+		local crea = (rtab.ici and typ == dtyp) and 0 or 1
 		minetest.register_node("advtrains_signals_ks:"..prefix.."_"..typ.."_"..rot, {
 			description = description,
 			drawtype = "mesh",
@@ -277,7 +286,7 @@ for _, rtab in ipairs({
 				advtrains_signal = 2,
 				not_blocking_trains = 1,
 				save_in_at_nodedb = 1,
-				not_in_creative_inventory = (rtab.ici and typ == dtyp) and 0 or 1,
+				not_in_creative_inventory = crea,
 			},
 			drop = "advtrains_signals_ks:"..prefix.."_"..dtyp.."_0",
 			inventory_image = inv,
@@ -290,6 +299,9 @@ for _, rtab in ipairs({
 		})
 		-- rotatable by trackworker
 		advtrains.trackplacer.add_worked("advtrains_signals_ks:"..prefix, typ, "_"..rot, nxt)
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:"..prefix.."_"..typ.."_"..rot] = "advtrains_signals_ks:"..prefix.."_"..dtyp.."_0"
+		end
 	end
 
 	for typ, prts in pairs {
@@ -357,6 +369,7 @@ for _, rtab in ipairs({
 			["12"] = {n = "16"},
 			["16"] = {n = "off"},
 		}) do
+		local crea = (rtab.ici and prts.ici) and 0 or 1
 		local def = {
 			drawtype = "mesh",
 			tiles = {"advtrains_signals_ks_mast.png","advtrains_signals_ks_head.png","advtrains_signals_ks_sign_"..typ..".png^[invert:rgb^[noalpha"},
@@ -372,7 +385,7 @@ for _, rtab in ipairs({
 				cracky = 2,
 				not_blocking_trains = 1,
 				save_in_at_nodedb = 1,
-				not_in_creative_inventory = (rtab.ici and prts.ici) and 0 or 1,
+				not_in_creative_inventory = crea,
 			},
 			after_dig_node = function(pos) advtrains.ndb.update(pos) end
 		}
@@ -394,30 +407,45 @@ for _, rtab in ipairs({
 		t.tiles[3] = t.tiles[3] .. "^[multiply:yellow"
 		minetest.register_node("advtrains_signals_ks:zs3v_"..typ.."_"..rot, t)
 		advtrains.trackplacer.add_worked("advtrains_signals_ks:zs3v", typ, "_"..rot)
+
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:zs3_"..typ.."_"..rot] = "advtrains_signals_ks:zs3_off_0"
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:zs3v_"..typ.."_"..rot] = "advtrains_signals_ks:zs3v_off_0"
+		end
 	end
 	
-	minetest.register_node("advtrains_signals_ks:mast_mast_"..rot, {
-		description = "Ks Mast",
-		drawtype = "mesh",
-		mesh = "advtrains_signals_ks_mast_smr"..rot..".obj",
-		tiles = {"advtrains_signals_ks_mast.png"},
-		
-		paramtype="light",
-		sunlight_propagates=true,
-		--light_source = 4,
-		
-		paramtype2 = "facedir",
-		selection_box = {
-			type = "fixed",
-			fixed = {rtab.sbox, {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}}
-		},
-		groups = {
-			cracky = 2,
-			not_blocking_trains = 1,
-			not_in_creative_inventory = (rtab.ici) and 0 or 1,
-		},
-		drop = "advtrains_signals_ks:mast_mast_0",
-	})
+	do
+		local crea = (rtab.ici) and 0 or 1
+		minetest.register_node("advtrains_signals_ks:mast_mast_"..rot, {
+			description = "Ks Mast",
+			drawtype = "mesh",
+			mesh = "advtrains_signals_ks_mast_smr"..rot..".obj",
+			tiles = {"advtrains_signals_ks_mast.png"},
+			
+			paramtype="light",
+			sunlight_propagates=true,
+			--light_source = 4,
+			
+			paramtype2 = "facedir",
+			selection_box = {
+				type = "fixed",
+				fixed = {rtab.sbox, rotation_sbox}
+			},
+			collision_box = {
+				type = "fixed",
+				fixed = rtab.sbox,
+			},
+			groups = {
+				cracky = 2,
+				not_blocking_trains = 1,
+				not_in_creative_inventory = crea,
+			},
+			drop = "advtrains_signals_ks:mast_mast_0",
+		})
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains_signals_ks:mast_mast_"..rot] = "advtrains_signals_ks:mast_mast_0"
+		end
+	end
 	advtrains.trackplacer.add_worked("advtrains_signals_ks:mast","mast", "_"..rot)
 end
 

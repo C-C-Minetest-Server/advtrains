@@ -555,6 +555,18 @@ function advtrains.register_tracks(tracktype, def, preset)
 				end
 
 				minetest.register_node(":"..def.nodename_prefix.."_"..suffix..rotation, ndef)
+				if minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+					local itemname
+					if preset.regtp then
+						itemname = def.nodename_prefix .. "_placer"
+					end
+					if preset.regsp then
+						itemname = def.nodename_prefix .. "_slopeplacer"
+					end
+					if itemname then
+						digtron.builder_read_item_substitutions[def.nodename_prefix.."_"..suffix..rotation] = itemname
+					end
+				end
 				--trackplacer
 				if preset.regtp then
 					local tpconns = {conn1=ndef.at_conns[1].c, conn2=ndef.at_conns[2].c}

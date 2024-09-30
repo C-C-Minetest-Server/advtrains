@@ -169,6 +169,9 @@ for d = 0, 1 do
 	local groups
 	if a + b + c + d ~= 0 then
 		groups = {dig_immediate=2, not_in_creative_inventory=1, save_in_at_nodedb=1}
+		if minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions[node_name] = BASENAME .. "0000"
+		end
 	else
 		groups = {dig_immediate=2, save_in_at_nodedb=1}
 	end

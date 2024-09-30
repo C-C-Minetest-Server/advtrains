@@ -181,6 +181,11 @@ for r,f in pairs({on={as="off", ls="green", als="red"}, off={as="on", ls="red", 
 			after_dig_node = after_dig_func,
 		})
 		advtrains.trackplacer.add_worked("advtrains:signal", r, rotation, nil)
+
+		if not crea and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains:retrosignal_"..r..rotation] = "advtrains:retrosignal_off"
+			digtron.builder_read_item_substitutions["advtrains:signal_"..r..rotation] = "advtrains:signal_off"
+		end
 	end
 	
 	local crea=1
@@ -256,6 +261,10 @@ for r,f in pairs({on={as="off", ls="green", als="red"}, off={as="on", ls="red", 
 			can_dig = can_dig_func,
 			after_dig_node = after_dig_func,
 		})
+
+		if crea == 1 and minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+			digtron.builder_read_item_substitutions["advtrains:signal_wall_"..loc.."_"..r] = "advtrains:signal_wall_"..loc.."_off"
+		end
 	end
 end
 
@@ -344,6 +353,10 @@ minetest.register_node("advtrains:across_on", {
 		end
 	end,
 })
+
+if minetest.global_exists("digtron") and digtron.builder_read_item_substitutions then
+	digtron.builder_read_item_substitutions["advtrains:across_on"] = "advtrains:across_off"
+end
 
 minetest.register_abm(
 	{
