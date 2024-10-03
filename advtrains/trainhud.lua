@@ -220,12 +220,34 @@ function advtrains.hud_train_format(train, flip)
 	hud:add_fill(215, 10, 15, 30, train.door_open==1 and "white" or "darkslategray"):add_fill(217, 12, 11, 11, "black")
 	-- speed indication(s)
 	hud:add_n7seg(320, 10, 110, 90, vel, 2, "red")
-	hud:add_segmentbar_leftright(10, 65, 217, 20, 3, 20, max, 20, "darkslategray", 0, vel, "white")
-	if res and res > 0 then
-		hud:add_fill(7+res*11, 60, 3, 30, "red")
+	do
+		local segbar_pos
+		if max > 20 then
+			segbar_pos = math.floor(vel * 20 / max)
+		else
+			segbar_pos = vel
+		end
+		hud:add_segmentbar_leftright(10, 65, 217, 20, 3, 20, math.min(max, 20), 20, "darkslategray", 0, segbar_pos, "white")
+	end
+	if res and res > 0 and res <= max then
+		local indi_pos
+		if max > 20 then
+			indi_pos = 7 + math.floor(res * 220 / max)
+		else
+			indi_pos = 7 + res * 11
+		end
+		hud:add_fill(indi_pos, 60, 3, 30, "red")
 	end
 	if train.tarvelocity then
-		hud:add(1+train.tarvelocity*11, 85, T"advtrains_hud_arrow.png":transform"FY":multiply"cyan")
+		do
+			local arrow_pos
+			if max > 20 then
+				arrow_pos = 1 + train.tarvelocity * 220 / max
+			else
+				arrow_pos = 1 + train.tarvelocity * 11
+			end
+			hud:add(arrow_pos, 85, T"advtrains_hud_arrow.png":transform"FY":multiply"cyan")
+		end
 	end
 	local lzbdisp
 	local lzb = train.lzb
@@ -250,7 +272,19 @@ function advtrains.hud_train_format(train, flip)
 			local c = not spd and "lime" or (type(spd) == "number" and (spd == 0) and "red" or "orange") or nil
 			if c then
 				if spd and spd~=0 then
-					hud:add(1+spd*11, 50, T"advtrains_hud_arrow.png":multiply"red")
+					do
+						local texture = T"advtrains_hud_arrow.png":multiply"red"
+						local arrow_pos
+						if spd > math.max(max, 20) then
+							texture = texture:transform"R90"
+							arrow_pos = 221 -- 20
+						elseif max > 20 then
+							arrow_pos = 1 + math.floor(spd * 220 / max)
+						else
+							arrow_pos = 1 + spd * 11
+						end
+						hud:add(arrow_pos, 50, texture)
+					end
 				end
 				local dist = math.floor(((oc[i].index or train.index)-train.index))
 				dist = math.max(0, math.min(999, dist))
