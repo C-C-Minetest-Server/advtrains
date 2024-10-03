@@ -68,3 +68,8 @@ advtrains_forgiving_collision (Forgiving Collision mode) bool false
 #    Enable universal couplers for wagons
 #    If enabled, wagons will bypass the checks that compare the coupler types when coupling.
 advtrains_universal_couplers (Universal Couplers) bool false
+
+#    Maximum speed of all trains
+#    The real maximum speed is the minimum value of all wagon's max speed and this value
+#    This is experimental. USE THIS AT YOUR OWN RISK!
+advtrains_max_speed (Maximum Train Speed) int 20 1 99
