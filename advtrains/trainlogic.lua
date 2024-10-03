@@ -1046,7 +1046,7 @@ end
 function advtrains.update_trainpart_properties(train_id, invert_flipstate)
 	local train=advtrains.trains[train_id]
 	--FIX: deep-copy the table!!!
-	train.max_speed=20
+	train.max_speed=advtrains.TRAIN_MAX_SPEED
 	train.extent_h = 0;
 	train.door_operation_time = 1
 	
