@@ -60,6 +60,7 @@ local wagon={
 	wagon_width=3, -- Wagon width in meters
 	has_inventory=false,
 	static_save=false,
+	max_speed = 20, -- Default value
 }
 
 

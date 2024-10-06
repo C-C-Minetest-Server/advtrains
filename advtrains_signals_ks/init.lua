@@ -316,11 +316,17 @@ for _, rtab in ipairs({
 	
 	for typ, prts in pairs {
 		-- Speed restrictions:
-		["4"] = {asp = { main = 4, shunt = true }, n = "6"},
-		["6"] = {asp = { main = 6, shunt = true }, n = "8"},
-		["8"] = {asp = { main = 8, shunt = true }, n = "12"},
-		["12"] = {asp = { main = 12, shunt = true }, n = "16"},
-		["16"] = {asp = { main = 16, shunt = true }, n = "e"},
+		["4"]  = {asp = { main =  4, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 6 and "6" or "e"},
+		["6"]  = {asp = { main =  6, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 8 and "8" or "e"},
+		["8"]  = {asp = { main =  8, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 12 and "12" or "e"},
+		["12"] = {asp = { main = 12, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 16 and "16" or "e"},
+		["16"] = {asp = { main = 16, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 20 and "20" or "e"},
+		["20"] = {asp = { main = 20, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 24 and "24" or "e"},
+		["24"] = {asp = { main = 24, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 28 and "28" or "e"},
+		["28"] = {asp = { main = 28, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 30 and "30" or "e"},
+		["30"] = {asp = { main = 30, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 32 and "32" or "e"},
+		["32"] = {asp = { main = 32, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "e"},
+		["36"] = {asp = { main = 36, shunt = true }, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "e"},
 		-- Speed restriction lifted
 		["e"] = {asp = { main = -1, shunt = true }, n = "4", mesh = "_zs10"},
 	} do
@@ -333,12 +339,19 @@ for _, rtab in ipairs({
 	end
 
 	for typ, prts in pairs {
-		["4"]   = {main =  4, n = "6"},
-		["6"]   = {main =  6, n = "8"},
-		["8"]   = {main =  8, n = "12"},
-		["12"]  = {main = 12, n = "16"},
-		["16"]  = {main = 16, n = "e"},
-		["e"] = {main = -1, n = "4"},
+		["4"]  = {main =  4, n = advtrains.TRAIN_MAX_SPEED >= 6 and "6" or "e"},
+		["6"]  = {main =  6, n = advtrains.TRAIN_MAX_SPEED >= 8 and "8" or "e"},
+		["8"]  = {main =  8, n = advtrains.TRAIN_MAX_SPEED >= 12 and "12" or "e"},
+		["12"] = {main = 12, n = advtrains.TRAIN_MAX_SPEED >= 16 and "16" or "e"},
+		["16"] = {main = 16, n = advtrains.TRAIN_MAX_SPEED >= 20 and "20" or "e"},
+		["20"] = {main = 20, n = advtrains.TRAIN_MAX_SPEED >= 24 and "24" or "e"},
+		["24"] = {main = 24, n = advtrains.TRAIN_MAX_SPEED >= 28 and "28" or "e"},
+		["28"] = {main = 28, n = advtrains.TRAIN_MAX_SPEED >= 30 and "30" or "e"},
+		["30"] = {main = 30, n = advtrains.TRAIN_MAX_SPEED >= 32 and "32" or "e"},
+		["32"] = {main = 32, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "e"},
+		["36"] = {main = 36, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "e"},
+		["40"] = {main = 40, n = "e"},
+		["e"]  = {main = -1, n = "4"},
 	} do
 		local tile2 = "advtrains_signals_ks_sign_lf7.png^(advtrains_signals_ks_sign_"..typ..".png^[makealpha:255,255,255)"..(typ == "e" and "" or "^[multiply:orange")
 		local inv = "advtrains_signals_ks_sign_lf7.png^(advtrains_signals_ks_sign_8.png^[makealpha:255,255,255)^[multiply:orange"
@@ -346,12 +359,18 @@ for _, rtab in ipairs({
 	end
 
 	for typ, prts in pairs {
-		["4"]   = {main =  4, n = "6"},
-		["6"]   = {main =  6, n = "8"},
-		["8"]   = {main =  8, n = "12"},
-		["12"]  = {main = 12, n = "16"},
-		["16"]  = {main = 16, n = "20"},
-		["20"]  = {main = 20, n = "4"},
+		["4"]  = {main =  4, n = advtrains.TRAIN_MAX_SPEED >= 6 and "6" or "4"},
+		["6"]  = {main =  6, n = advtrains.TRAIN_MAX_SPEED >= 8 and "8" or "4"},
+		["8"]  = {main =  8, n = advtrains.TRAIN_MAX_SPEED >= 12 and "12" or "4"},
+		["12"] = {main = 12, n = advtrains.TRAIN_MAX_SPEED >= 16 and "16" or "4"},
+		["16"] = {main = 16, n = advtrains.TRAIN_MAX_SPEED >= 20 and "20" or "4"},
+		["20"] = {main = 20, n = advtrains.TRAIN_MAX_SPEED >= 24 and "24" or "4"},
+		["24"] = {main = 24, n = advtrains.TRAIN_MAX_SPEED >= 28 and "28" or "4"},
+		["28"] = {main = 28, n = advtrains.TRAIN_MAX_SPEED >= 30 and "30" or "4"},
+		["30"] = {main = 30, n = advtrains.TRAIN_MAX_SPEED >= 32 and "32" or "4"},
+		["32"] = {main = 32, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "4"},
+		["36"] = {main = 36, n = advtrains.TRAIN_MAX_SPEED >= 40 and "40" or "4"},
+		["40"] = {main = 40, n = "4"},
 	} do
 		local tile2 = "advtrains_signals_ks_sign_lf7.png^(advtrains_signals_ks_sign_"..typ..".png^[makealpha:255,255,255)"
 		local inv = "advtrains_signals_ks_sign_lf7.png^(advtrains_signals_ks_sign_8.png^[makealpha:255,255,255)"
