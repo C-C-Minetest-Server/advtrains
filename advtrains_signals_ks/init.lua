@@ -156,7 +156,7 @@ for _, rtab in ipairs({
 		local tile = "advtrains_signals_ks_ltm_"..typ..".png"
 		local afunc = prts.asp
 		if type(afunc) == "table" then
-			afunc = function() return prts.asp end
+			afunc = function() return table.copy(prts.asp) end
 		end
 		if typ == "nextslow" then
 			tile = {
@@ -201,6 +201,7 @@ for _, rtab in ipairs({
 				set_aspect = setaspectf(rot),
 				supported_aspects = suppasp,
 				get_aspect = afunc,
+				getstate = afunc,
 			},
 			on_rightclick = advtrains.interlocking.signal_rc_handler,
 			can_dig = advtrains.interlocking.signal_can_dig,
@@ -216,6 +217,9 @@ for _, rtab in ipairs({
 			danger = {asp = { main = false, shunt = false }, n = "shuntd", ici=true},
 			shuntd = {asp = { main = false, shunt = true } , n = "danger"},
 		}) do
+		local function afunc()
+			return table.copy(prts.asp)
+		end
 		local sbox = table.copy(rtab.sbox)
 		sbox[5] = 0
 		minetest.register_node("advtrains_signals_ks:ra_"..typ.."_"..rot, {
@@ -249,9 +253,8 @@ for _, rtab in ipairs({
 			advtrains = {
 				set_aspect = setaspectf_ra(rot),
 				supported_aspects = suppasp_ra,
-				get_aspect = function(pos, node)
-					return prts.asp
-				end,
+				get_aspect = afunc,
+				getstate = afunc,
 			},
 			on_rightclick = advtrains.interlocking.signal_rc_handler,
 			can_dig = advtrains.interlocking.signal_can_dig,
