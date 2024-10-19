@@ -17,6 +17,11 @@ function train_ref_class:get_id()
     return train and train.id or false
 end
 
+function train_ref_class:get_index()
+    local train = advtrains.trains[self.atc_id]
+    return train and train.index or false
+end
+
 function train_ref_class:train_length()
     local train = advtrains.trains[self.atc_id]
     return train and #train.trainparts or false
