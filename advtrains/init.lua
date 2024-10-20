@@ -66,6 +66,13 @@ if not advtrains.wagon_load_range then
 	advtrains.wagon_load_range = tonumber(minetest.settings:get("active_block_range"))*16
 end
 
+-- Maximum speed of trains
+-- The real maximum speed is the minimum value of all wagon's max speed and this value
+-- Default: 20; Min: 1; Max: 99
+-- Max. 99 because of the train HUD 7-seg display
+advtrains.TRAIN_MAX_SPEED = tonumber(minetest.settings:get("advtrains_max_speed")) or 20
+advtrains.TRAIN_MAX_SPEED = math.max(math.min(advtrains.TRAIN_MAX_SPEED, 99), 1)
+
 --pcall
 local no_action=false
 
