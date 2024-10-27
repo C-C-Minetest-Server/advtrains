@@ -318,7 +318,7 @@ function wagon:on_step(dtime)
 			local has_driverstand = pname and advtrains.check_driving_couple_protection(pname, data.owner, data.whitelist)
 			has_driverstand = has_driverstand and self:is_driver_stand(seat)
 			if has_driverstand and driver then
-				advtrains.update_driver_hud(driver:get_player_name(), self:train(), data.wagon_flipped)
+				advtrains.update_driver_hud(driver:get_player_name(), self:train(), data)
 			elseif driver then
 				--only show the inside text
 				local inside=self:train().text_inside or ""
