@@ -113,6 +113,8 @@ local suppasp_ra = {
 		}
 }
 
+local rotation_sbox = {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}
+
 advtrains.trackplacer.register_tracktype("advtrains_signals_ks:hs")
 advtrains.trackplacer.register_tracktype("advtrains_signals_ks:ra")
 advtrains.trackplacer.register_tracktype("advtrains_signals_ks:sign")
@@ -180,7 +182,11 @@ for _, rtab in ipairs({
 			paramtype2 = "facedir",
 			selection_box = {
 				type = "fixed",
-				fixed = {rtab.sbox, {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}}
+				fixed = {rtab.sbox, rotation_sbox}
+			},
+			collision_box = {
+				type = "fixed",
+				fixed = rtab.sbox,
 			},
 			groups = {
 				cracky = 2,
@@ -270,7 +276,11 @@ for _, rtab in ipairs({
 			paramtype2 = "facedir",
 			selection_box = {
 				type = "fixed",
-				fixed = {rtab.sbox, {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}}
+				fixed = {rtab.sbox, rotation_sbox}
+			},
+			collision_box = {
+				type = "fixed",
+				fixed = rtab.sbox,
 			},
 			groups = {
 				cracky = 2,
@@ -385,7 +395,11 @@ for _, rtab in ipairs({
 			paramtype2 = "facedir",
 			selection_box = {
 				type = "fixed",
-				fixed = {rtab.sbox, {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}}
+				fixed = {rtab.sbox, rotation_sbox}
+			},
+			collision_box = {
+				type = "fixed",
+				fixed = rtab.sbox,
 			},
 			groups = {
 				cracky = 2,
@@ -428,7 +442,11 @@ for _, rtab in ipairs({
 		paramtype2 = "facedir",
 		selection_box = {
 			type = "fixed",
-			fixed = {rtab.sbox, {-1/4, -1/2, -1/4, 1/4, -7/16, 1/4}}
+			fixed = {rtab.sbox, rotation_sbox}
+		},
+		collision_box = {
+			type = "fixed",
+			fixed = rtab.sbox,
 		},
 		groups = {
 			cracky = 2,
