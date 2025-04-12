@@ -384,7 +384,7 @@ local dect = { ["0"]=0,["1"]=1,["2"]=2,["3"]=3,["4"]=4,["5"]=5,["6"]=6,["7"]=7,[
 local f = atfloor
 
 local function hex(i)
-	local x=i+32768
+	local x=f(i+32768)
 	local c4 = x % 16
 	x = f(x / 16)
 	local c3 = x % 16
