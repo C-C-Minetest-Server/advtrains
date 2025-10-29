@@ -125,6 +125,23 @@ advtrains.mainloop_trainlogic=function(dtime, stepno)
 	endstep()
 end
 
+function advtrains.get_train_velocity_vector(id)
+	local train=advtrains.trains[id]
+	if not train or not train.path then return end
+	if train.velocity == 0 then return vector.zero() end
+
+	local p1, p2 = advtrains.path_get_adjacent(train, train.index)
+    if not p1 or not p2 then return nil end
+
+    local dir = vector.subtract(p2, p1)
+    local len = math.sqrt(dir.x*dir.x + dir.y*dir.y + dir.z*dir.z)
+    if len == 0 then return vector.zero() end
+
+    local unit = vector.multiply(dir, 1 / len)
+    local vel = train.velocity or 0
+    return vector.multiply(unit, vel)
+end
+
 function advtrains.tp_player_to_train(player)
 	local pname = player:get_player_name()
 	local id=advtrains.player_to_train_mapping[pname]
@@ -134,9 +151,20 @@ function advtrains.tp_player_to_train(player)
 		--set the player to the train position.
 		--minetest will emerge the area and load the objects, which then will call reattach_all().
 		--because player is in mapping, it will not be subject to dying.
-		player:set_pos(train.last_pos)
+		local pos = train.last_pos
+
+		local plinfo = minetest.get_player_information(pname)
+		if plinfo and plinfo.avg_rtt then
+			local dtime = plinfo.avg_rtt + 1
+			local vel = advtrains.get_train_velocity_vector(id) or vector.zero()
+			local dist = vector.multiply(vel, dtime)
+			pos = vector.add(pos, dist)
+		end
+
+		player:set_pos(pos)
 	end
 end
+
 minetest.register_on_joinplayer(function(player)
 		advtrains.hud[player:get_player_name()] = nil
 		advtrains.hhud[player:get_player_name()] = nil
