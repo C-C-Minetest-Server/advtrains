@@ -656,6 +656,7 @@ minetest.register_globalstep(function(dtime_mt)
 		if atlatc then
 			--atlatc.mainloop_stepcode(dtime)
 			atlatc.interrupt.mainloop(dtime)
+			atlatc.run_env_globalsteps(dtime)
 		end
 		if advtrains.lines then
 			advtrains.lines.step(dtime)
