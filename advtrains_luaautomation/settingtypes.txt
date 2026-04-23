@@ -1,2 +1,5 @@
 # Enable or disable craft recipes for LuaATC components
 advtrains_luaautomation_enable_luaatc_recipes (Enable LuaATC component craft recipes) bool true
+
+# Enable or disable Tracy in LuaATC environments (require engine built with Tracy)
+advtrains_luaautomation_enable_tracy (Enable Tracy in LuaATC environment) bool false

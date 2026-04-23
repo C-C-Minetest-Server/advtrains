@@ -290,6 +290,11 @@ for _, name in pairs(safe_globals) do
 	static_env[name] = _G[name]
 end
 
+local noop = function() end
+local err_ZoneBeginS = function()
+	error("Call stacks collection is not allowed in LuaATC environment.", 2)
+end
+
 --The environment all code calls get is a table that has set static_env as metatable.
 --In general, every variable is local to a single code chunk, but kept persistent over code re-runs. Data is also saved, but functions and userdata and circular references are removed
 --Init code and step code's environments are not saved
@@ -309,6 +314,77 @@ function env_proto:execute_code(localenv, code, evtdata, customfct)
 			myenv:log("info", ...)
 		end
 	end
+
+	-- Prepare Tracy for the code
+	local tracy_enabled = atlatc.enable_tracy and _G.tracy
+	local tracy_func = {}
+	local tracy_zone_count = 0
+
+	-- Do not allow call stacks tracing
+	-- Per my understanding to the Tracy API, it seems to allow leaking info
+	-- outside of the LuaATC env, and is also costy.
+	-- Even if tracy is disabled, still return error for consistency.
+	tracy_func.ZoneBeginS = err_ZoneBeginS
+	tracy_func.ZoneBeginNS = err_ZoneBeginS
+
+	if tracy_enabled then
+		tracy_func.ZoneBegin = function()
+			-- For better traceability, we don't allow unnamed zones.
+			tracy_zone_count = tracy_zone_count + 1
+			return _G.tracy.ZoneBeginN("LuaATC::" .. self.name .. "::unnamed_" .. tracy_zone_count .. "_" .. core.get_us_time())
+		end
+
+		tracy_func.ZoneBeginN = function(name)
+			assertt(name, "string")
+			tracy_zone_count = tracy_zone_count + 1
+			return _G.tracy.ZoneBeginN("LuaATC::" .. self.name .. "::" .. name)
+		end
+
+		tracy_func.ZoneText = function(text)
+			assertt(text, "string")
+			if tracy_zone_count == 0 then
+				error("Attempt to set Tracy ZoneText without an active zone", 2)
+			end
+			return _G.tracy.ZoneText("LuaATC::" .. self.name .. "::" .. text)
+		end
+
+		tracy_func.Message = function(text)
+			assertt(text, "string")
+			return _G.tracy.Message("LuaATC::" .. self.name .. "::" .. text)
+		end
+
+		tracy_func.ZoneName = function(text)
+			assertt(text, "string")
+			if tracy_zone_count == 0 then
+				error("Attempt to set Tracy ZoneName without an active zone", 2)
+			end
+			return _G.tracy.ZoneName("LuaATC::" .. self.name .. "::" .. text)
+		end
+
+		tracy_func.ZoneEnd = function()
+			if tracy_zone_count > 0 then
+				tracy_zone_count = tracy_zone_count - 1
+				return _G.tracy.ZoneEnd()
+			end
+			error("Mismatched Tracy ZoneEnd call", 2)
+		end
+	else
+		-- If tracy is not enabled, these functions do nothing.
+		-- Note that there are still some overheads; developers should manually 
+		-- remove tracy calls before deployment.
+		tracy_func.ZoneBegin = noop
+		tracy_func.ZoneBeginN = noop
+		tracy_func.ZoneText = noop
+		tracy_func.Message = noop
+		tracy_func.ZoneName = noop
+		tracy_func.ZoneEnd = noop
+	end
+
+	setmetatable(tracy_func, {
+		__newindex = function(t, i, v)
+			error("Trying to overwrite tracy environment contents")
+		end,
+	})
 	
 	local metatbl ={
 		__index = function(t, i)
@@ -324,6 +400,8 @@ function env_proto:execute_code(localenv, code, evtdata, customfct)
 				return localenv[i]
 			elseif i=="print" then
 				return self.safe_print_func
+			elseif i=="tracy" then
+				return tracy_func
 			end
 			return static_env[i]
 		end,
@@ -346,6 +424,19 @@ function env_proto:execute_code(localenv, code, evtdata, customfct)
 	if succ then
 		data=localenv
 	end
+
+	-- Clean up any tracy zones that were not properly ended
+	if tracy_zone_count > 0 then
+		-- Don't blame the code if we ended due to an error, otherwise warn it
+		if succ then
+			self:log("warning", "Code ended with "..tracy_zone_count.." unclosed Tracy zones.")
+		end
+
+		for i = 1, tracy_zone_count do
+			_G.tracy.ZoneEnd()
+		end
+	end
+
 	return succ, data
 end
 
