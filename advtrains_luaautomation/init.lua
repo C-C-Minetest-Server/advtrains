@@ -21,6 +21,9 @@ atlatc.CODE_FORM_SIZE = "15,12"
 --Position of Error Label in Code Form
 atlatc.CODE_FORM_ERRLABELPOS = "0,12"
 
+-- Whether to pass tracy into environments if avaliable
+atlatc.enable_tracy = minetest.settings:get_bool("advtrains_luaautomation_enable_tracy", false)
+
 --assertt helper. error if a variable is not of a type
 function assertt(var, typ)
 	if type(var)~=typ then
