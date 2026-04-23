@@ -431,6 +431,27 @@ The init code is run whenever the F table needs to be refilled with data. This i
 The event table of the init code is always `{type="init", init=true}` and can not be anything else.  
 Functions are run in the environment of the currently active node, regardless of where they were defined.
 
+### Globalsteps
+Codes that should be run in the environment repeatedly can be registered as a globalstep function. Under normal circumstances, they will be called for every Advtrains globalstep cycle.
+
+Globalsteps can only be registered inside the initialization code. They can be registered as follows:
+
+```lua
+-- /env_setup <your env name>
+register_globalstep(function(dtime)
+	-- Your logics here...
+end)
+```
+
+The event fired inside globalstep functions is `{type="globalstep", globalstep=true, dtime=dtime, us_time=us_time}`, where `dtime` is the time in second since the last execution of this function, and us_time is the time with microsecond percision.
+
+The following functions can be called within a globalstep function to voluntarily slow it down:
+
+ - `step_pause_until(us_time)`: Postpond the globalstep's execution until the given time in microsecond.
+ - `step_pause_for(delay)`: Postpond the globalstep's execution for the given number of seconds.
+
+Note that the above functions have to be called every time you want the function to be slowed down, as their values are not saved. When an error is raised in a globalstep function, the globalstep will be postponded for at least 2 seconds, unless the function explicitly requested a longer pause time before the error occured.
+
 ### Passive components
 
 All passive components can be interfaced with the `setstate()` and `getstate()` functions (see above).
