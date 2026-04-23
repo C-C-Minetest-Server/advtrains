@@ -387,6 +387,19 @@ All Railway Time functions are included as documented in https://advtrains.de/wi
 - `schedule_in(rw_dtime, msg)`
 Schedules the following event `{type="schedule", schedule=true, msg=msg}` at (resp. after) the specified railway time (which can be in any format). You can only schedule one event this way. Uses the new lines-internal scheduler.
 
+#### Tracy
+Tracy support in LuaATC codes can be enabled by [compiling the engine with Tracy support](https://github.com/luanti-org/luanti/blob/master/doc/developing/profiling.md#profiling-with-tracy) and setting `advtrains_luaautomation_enable_tracy = true` in `minetest.conf`. If the above conditions are met, sanitized Tracy functions will be exposed inside LuaATC environments; otherwise, no-op functions will be injected. Call stack collection functions, including `tracy.ZoneBeginS(depth)` and `tracy.ZoneBeginNS(name, depth)`, are disabled, and will raise an error once called.
+
+For better traceability, a prefix `LuaATC::<environment name>::` will be added to all zone names. "Unnamed zones" created will be assigned with a name based on its place in the zone stack and the time with microsecond precision the zone is created.
+
+Advtrains will keep track of the number of Tracy zones started, and close any zones that are accidentally left open after the execution of the codes. A warning will be sent if some zones are left open and the cause is not a runtime error. Attempting to close zones while there are no zones opened by the LuaATC code will result in an error.
+
+While it is harmless to leave behind Tracy function calls in an environment without Tracy support, to minimize overhead, you should still remove any Tracy calls if you know the code will be deployed onto a Tracy-disabled environment.
+
+Please note that Tracy functions are not checked to the standard of typical Luanti mod security. Enabling Tracy on production servers is discouraged, and even though safeguards are added when exposing Tracy into LuaATC, doing so is still considered risky. You are advised to run a local copy of your production server if you want to profile LuaATC codes running on it.
+
+Refer to their [official documentation](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf) for usages of the functions and how to collect data.
+
 ### Operator panel
 This simple node executes its actions when punched. It can be used to change a switch and update the corresponding signals or similar applications. It can also be connected to by the`digilines` mod.
 
