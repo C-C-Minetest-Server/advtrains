@@ -336,13 +336,18 @@ function env_proto:execute_code(localenv, code, evtdata, customfct)
 		end,
 	}
 	setmetatable(proxy_env, metatbl)
-	local fun, err=loadstring(code)
-	if not fun then
-		return false, err
+	if type(code) == "string" then
+		local fun, err=loadstring(code)
+		if not fun then
+			return false, err
+		end
+		code = fun
+	elseif type(code) ~= "function" then
+		return false, "Code must be a string or a function"
 	end
 	
-	setfenv(fun, proxy_env)
-	local succ, data = pcall(fun)
+	setfenv(code, proxy_env)
+	local succ, data = pcall(code)
 	if succ then
 		data=localenv
 	end
@@ -353,14 +358,28 @@ function env_proto:run_initcode()
 	if self.init_code and self.init_code~="" then
 		local old_fdata=self.fdata
 		self.fdata = {}
+		local old_globalsteps = self.globalsteps
+		self.globalsteps = {}
+
+		local customfct = {}
+		customfct.register_globalstep = function(func)
+			assertt(func, "function")
+			self.globalsteps[#self.globalsteps+1] = { func = func, dtime = 0 }
+		end
+
 		--atprint("[atlatc]Running initialization code for environment '"..self.name.."'")
-		local succ, err = self:execute_code({}, self.init_code, {type="init", init=true})
+		local succ, err = self:execute_code(customfct, self.init_code, {type="init", init=true})
 		if not succ then
 			self:log("error", "Executing InitCode for '"..self.name.."' failed:"..err)
 			self.init_err=err
 			if old_fdata then
 				self.fdata=old_fdata
+				self.globalsteps=old_globalsteps
 				self:log("warning", "The 'F' table has been restored to the previous state.")
+			end
+			if old_globalsteps then
+				self.globalsteps=old_globalsteps
+				self:log("warning", "The list of globalsteps has been restored to the previous state.")
 			end
 		end
 	end
@@ -386,6 +405,7 @@ function atlatc.env_new(name)
 		init_code="",
 		sdata={},
 		subscribers={},
+		globalsteps={},
 	}
 	setmetatable(newenv, {__index=env_proto})
 	return newenv
@@ -400,6 +420,55 @@ end
 function atlatc.run_initcode()
 	for envname, env in pairs(atlatc.envs) do
 		env:run_initcode()
+	end
+end
+
+function atlatc.run_env_globalsteps(dtime)
+	local now = core.get_us_time()
+	for envname, env in pairs(atlatc.envs) do
+		if env.globalsteps then
+			for _, func_data in ipairs(env.globalsteps) do
+				func_data.dtime = func_data.dtime + dtime
+				if not func_data.pause_until or func_data.pause_until <= now then
+					func_data.pause_until = nil
+
+					local func_dtime = func_data.dtime
+					func_data.dtime = 0
+
+					local func = func_data.func
+					local new_func = function()
+						return func(func_dtime)
+					end
+
+					local customfct = {
+						step_pause_until = function(us_time)
+							assertt(us_time, "number")
+							func_data.pause_until = us_time
+						end,
+						step_pause_for = function(delay)
+							assertt(delay, "number")
+							func_data.pause_until = core.get_us_time() + delay * 1000000
+						end,
+					}
+
+					local evt = {
+						type = "globalstep",
+						globalstep = true,
+						dtime = func_dtime,
+						us_time = now,
+					}
+
+					local succ, err = env:execute_code(customfct, new_func, evt)
+					if not succ then
+						env:log("error", "LuaATC globalstep error: LUA Error:", err)
+
+						-- Slow it down so that errors won't overwhelm the server
+						-- However, respect the script's pause time if it requested more
+						func_data.pause_until = math.max(func_data.pause_until or 0, now + 2000000)
+					end
+				end
+			end
+		end
 	end
 end
 
