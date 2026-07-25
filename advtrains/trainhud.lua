@@ -296,8 +296,8 @@ function advtrains.hud_train_format(train, wdata)
 	local vmaxmark = 10+math.floor(vmax*vsize)
 	hud:add_fill(vmaxmark, 50, 310-vmaxmark, 25, "darkslategray")
 
-	local largestep = dispmax > 30 and 10 or 5
-	local smallstep = dispmax > 30 and 2 or 1
+	local largestep = dispmax > 50 and 10 or 5
+	local smallstep = dispmax > 50 and 2 or 1
 	for i = 0, vmax, smallstep do
 		local markpos = math.min(9 + math.max(1, i*vsize), vmaxmark, 308)
 		local marksize = 15
