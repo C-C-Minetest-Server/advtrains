@@ -254,8 +254,6 @@ function advtrains.hud_train_format(train, wdata)
 			end
 		end
 		local spd = cp.speed
-		spd = advtrains.speed.min(spd, train.speed_restriction)
-		if spd == -1 then spd = nil end
 		local c
 		if not spd or spd == -1 then
 			c = "lime"
