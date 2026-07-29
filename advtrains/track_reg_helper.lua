@@ -619,14 +619,17 @@ function advtrains.register_tracks(tracktype, def, preset)
 					ndef.advtrains = advtrains.merge_tables(ndef.advtrains or {}, ndef_avt_table)
 				end
 				
-				-- NEW since 2.5: add appropriate fields for trackworker rotation
-				-- get the next rotation step
-				local num_rots = #preset.rotation
-				if rotid >= num_rots then
-					ndef.advtrains.trackworker_next_rot = def.nodename_prefix.."_"..suffix..preset.rotation[1]
-					ndef.advtrains.trackworker_rot_incr_param2 = true
-				else
-					ndef.advtrains.trackworker_next_rot = def.nodename_prefix.."_"..suffix..preset.rotation[rotid+1]
+				-- Slopes consist of multiple nodes so these should not be rotatable
+				if not var.slope then
+					-- NEW since 2.5: add appropriate fields for trackworker rotation
+					-- get the next rotation step
+					local num_rots = #preset.rotation
+					if rotid >= num_rots then
+						ndef.advtrains.trackworker_next_rot = def.nodename_prefix.."_"..suffix..preset.rotation[1]
+						ndef.advtrains.trackworker_rot_incr_param2 = true
+					else
+						ndef.advtrains.trackworker_next_rot = def.nodename_prefix.."_"..suffix..preset.rotation[rotid+1]
+					end
 				end
 				if var.trackworker then
 					ndef.advtrains.trackworker_next_var = def.nodename_prefix.."_"..var.trackworker..rotation
