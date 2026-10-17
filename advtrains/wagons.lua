@@ -588,13 +588,18 @@ function wagon:on_step(dtime)
 				end
 			end
 		end
-		
+
+		-- Only send update packet if something changed
+		-- Due to floating-point imprecisions, the player rotation code may
+		-- fire even though the wagon is no turning, e.g if going 45°
+		local jitter = 1e-7
 		if not self.old_velocity_vector 
-				or not vector.equals(velocityvec, self.old_velocity_vector)
-				or not self.old_acceleration_vector 
-				or not vector.equals(accelerationvec, self.old_acceleration_vector)
-				or self.old_yaw~=oyaw
-				or updatepct_timer_elapsed then--only send update packet if something changed
+			or vector.distance(velocityvec, self.old_velocity_vector) > jitter
+			or not self.old_acceleration_vector
+			or vector.distance(accelerationvec, self.old_acceleration_vector) > jitter
+			or math.abs(self.old_yaw-oyaw) % (2*math.pi) > jitter
+			or updatepct_timer_elapsed
+		then
 			
 			self.object:set_pos(pos)
 			self.object:set_velocity(velocityvec)
