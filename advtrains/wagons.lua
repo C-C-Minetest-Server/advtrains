@@ -597,7 +597,7 @@ function wagon:on_step(dtime)
 			or vector.distance(velocityvec, self.old_velocity_vector) > jitter
 			or not self.old_acceleration_vector
 			or vector.distance(accelerationvec, self.old_acceleration_vector) > jitter
-			or math.abs(self.old_yaw-oyaw) % (2*math.pi) > jitter
+			or math.abs((self.old_yaw-oyaw+math.pi) % (2*math.pi) - math.pi) > jitter
 			or updatepct_timer_elapsed
 		then
 			
