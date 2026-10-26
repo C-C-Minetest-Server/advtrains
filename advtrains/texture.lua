@@ -51,6 +51,10 @@ end
 function tx.base(str)
 	return tx.raw(tx.escape(str))
 end
+function tx.lowpart(ratio, file)
+	return tx.raw(("[lowpart:%d:%s"):format(ratio*100, tx.escape(file)))
+end
+
 -- TODO: use [fill when 5.8.0 becomes widely used client-side
 function tx.fill(w, h, color)
 	return tx"advtrains_hud_bg.png":resize(w, h):colorize(color)
@@ -67,6 +71,16 @@ end)
 tx_lib.multiply = mkmodifier("[multiply:%s", {tx.escape})
 tx_lib.resize = mkmodifier("[resize:%dx%d", {})
 tx_lib.transform = mkmodifier("[transform%s", {tx.escape})
+tx_lib.makealpha = mkmodifier("[makealpha:%s", {tx.escape})
+tx_lib.verticalframe = mkmodifier("[verticalframe:%d:%d]", {})
+tx_lib.overlay_raw = xmkmodifier(tostring)
+tx_lib.overlay = function(self, texture)
+	if type(texture) == "string" then
+		return self:overlay_raw(tx.escape(texture))
+	else
+		return self:overlay_raw(texture)
+	end
+end
 
 -- [combine
 
@@ -93,8 +107,11 @@ function tx.combine(w, h, bg)
 	return obj
 end
 
-function combine:add_fill(x, y, ...)
-	return self:add(x, y, tx.fill(...))
+function combine:add_fill(x, y, w, h, ...)
+	if w < 1 or h < 1 then
+		return obj
+	end
+	return self:add(x, y, tx.fill(w, h, ...))
 end
 
 local function add_multicolor_fill(n, self, x, y, w, h, ...)
@@ -223,6 +240,33 @@ function combine:add_n7seg(x, y, w, h, n, prec, ...)
 	end
 	local str = ("%d"):format(n)
 	return self:add_str7seg(x, y, w, h, pfx .. ("0"):rep(prec-#str-#pfx) .. str, ...)
+end
+
+function combine:add_small_digit(x, y, s, d, fill)
+	d = math.floor(tonumber(d))
+	if not d or d ~= d or d < 0 or d > 9 then
+		error("invalid value passed to advtrains.combine_texture:add_small_digit")
+	end
+	return self:add(x, y, tx"advtrains_hud_smallnum.png":verticalframe(10, d):makealpha"black":multiply(fill):resize(3*s, 5*s))
+end
+
+function combine:add_smallnum(x, y, s, n, prec, ...)
+	if not (type(n) == "number" and type(prec) == "number") then
+		error("invalid number or precision passed to numeric display")
+	elseif n < 0 then
+		error("cannot use negative number")
+	elseif prec < 0 then
+		error("cannot use negative length")
+	end
+	n = math.floor(n)
+	local digits = {}
+	for k = prec, 1, -1 do
+		digits[k] = n % 10
+		n = math.floor(n/10)
+	end
+	for k, d in ipairs(digits) do
+		self:add_small_digit(x+4*s*(k-1), y, s, d, ...)
+	end
 end
 
 return tx
